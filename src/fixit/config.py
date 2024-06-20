@@ -205,7 +205,6 @@ def collect_rules(
     """
     Import and return rules specified by `enables` and `disables`.
     """
-
     all_rules: Set[Type[LintRule]] = set()
     if debug_reasons is not None:
         disabled_rules = debug_reasons
@@ -414,13 +413,31 @@ def merge_configs(
         config_dir = config.path.parent
         for rule in enable:
             qual_rule = parse_rule(rule, config_dir, config)
-            enable_rules.add(qual_rule)
-            disable_rules.discard(qual_rule)
+            rules = [qual_rule]
+            try:
+                rules = [
+                    parse_rule(r.__module__, config_dir, config)
+                    for r in find_rules(qual_rule)
+                ]
+            except Exception as e:
+                print(e)
+            for rule in rules:
+                enable_rules.add(rule)
+                disable_rules.discard(rule)
 
         for rule in disable:
             qual_rule = parse_rule(rule, config_dir, config)
-            enable_rules.discard(qual_rule)
-            disable_rules.add(qual_rule)
+            rules = [qual_rule]
+            try:
+                rules = [
+                    parse_rule(r.__module__, config_dir, config)
+                    for r in find_rules(qual_rule)
+                ]
+            except Exception as e:
+                print(e)
+            for rule in rules:
+                enable_rules.discard(rule)
+                disable_rules.add(rule)
 
         if options:
             rule_options.update(options)
