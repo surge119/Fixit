@@ -205,6 +205,7 @@ def collect_rules(
     """
     Import and return rules specified by `enables` and `disables`.
     """
+
     all_rules: Set[Type[LintRule]] = set()
     if debug_reasons is not None:
         disabled_rules = debug_reasons
